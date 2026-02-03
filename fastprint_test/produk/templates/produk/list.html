@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Daftar Produk</title>
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Alpine JS -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen p-6" x-data="{ openTambah:{{ openTambah|lower|default:'false' }}, openEdit:false, editData:{} }">
+
+    <div class="max-w-6xl mx-auto bg-white shadow-lg rounded-xl p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-bold text-gray-700">Daftar Produk</h2>
+
+            <button
+                @click="openTambah=true"
+                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                + Tambah Produk
+            </button>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full border-collapse hidden md:table text-xs">
+                <thead>
+                    <tr class="bg-blue-600 text-white text-[11px] uppercase tracking-wider">
+                        <th class="px-3 py-2 text-left rounded-tl-lg w-10">No</th>
+                        <th class="px-3 py-2 text-left w-20">ID</th>
+                        <th class="px-3 py-2 text-left">Nama Produk</th>
+                        <th class="px-3 py-2 text-left w-24">Harga</th>
+                        <th class="px-3 py-2 text-left w-32">Kategori</th>
+                        <th class="px-3 py-2 text-left w-24">Status</th>
+                        <th class="px-3 py-2 text-center rounded-tr-lg w-24">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white">
+                    {% for p in produk %}
+                    <tr class="border-b border-gray-200 hover:bg-gray-50">
+                        <td class="px-3 py-2.5 text-gray-700">{{ forloop.counter }}</td>
+                        <td class="px-3 py-2.5">
+                            <span class="text-blue-600 font-semibold">{{ p.id_produk }}</span>
+                        </td>
+                        <td class="px-3 py-2.5 text-gray-800 leading-tight">
+                            {{ p.nama_produk }}
+                        </td>
+                        <td class="px-3 py-2.5 text-gray-700 whitespace-nowrap">{{ p.harga }}</td>
+                        <td class="px-3 py-2.5 text-gray-700">
+                            {{ p.kategori.nama_kategori }}
+                        </td>
+                        <td class="px-3 py-2.5">
+                            <span class="inline-block px-2 py-1 text-[10px] font-medium rounded whitespace-nowrap {% if p.status.nama_status == 'bisa dijual' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
+                                {{ p.status.nama_status }}
+                            </span>
+                        </td>
+                        <td class="px-3 py-2.5 text-center">
+                            <div class="flex items-center justify-center gap-1">
+                                <button
+                                    @click="
+                                        openEdit=true;
+                                        editData={
+                                            id:'{{ p.id }}',
+                                            id_produk:'{{ p.id_produk }}',
+                                            nama:'{{ p.nama_produk }}',
+                                            harga:'{{ p.harga }}',
+                                            kategori:'{{ p.kategori.id }}',
+                                            status:'{{ p.status.id }}'
+                                        }
+                                    "
+                                    class="bg-orange-500 text-white w-7 h-7 rounded flex items-center justify-center hover:bg-orange-600 transition">
+                                    📝
+                                </button>
+
+                                <a
+                                    href="{% url 'produk_hapus' p.id %}"
+                                    onclick="return confirm('Yakin hapus produk ini?')"
+                                    class="bg-red-600 text-white w-7 h-7 rounded flex items-center justify-center hover:bg-red-700 transition">
+                                    🗑️
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:hidden text-sm">
+                {% for p in produk %}
+                <div class="bg-white p-3 rounded-lg shadow">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs text-blue-600 font-semibold">ID: {{ p.id_produk }}</p>
+                            <p class="font-medium text-gray-800 leading-snug text-[13px]">{{ p.nama_produk }}</p>
+                            <p class="text-xs text-gray-600 leading-snug">
+                                {{ p.kategori.nama_kategori }}
+                            </p>
+                            <p class="text-sm font-semibold text-gray-700 mt-1">Rp {{ p.harga }}</p>
+                        </div>
+                        <span class="px-2 py-1 text-xs rounded {% if p.status.nama_status == 'bisa dijual' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
+                            {{ p.status.nama_status }}
+                        </span>
+                    </div>
+                    <div class="mt-3 flex justify-end space-x-2">
+                        <button
+                            @click="
+                                openEdit=true;
+                                editData={
+                                    id:'{{ p.id }}',
+                                    nama:'{{ p.nama_produk }}',
+                                    harga:'{{ p.harga }}'
+                                }
+                            "
+                            class="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 text-xs">
+                            📝
+                        </button>
+                        <a
+                            href="{% url 'produk_hapus' p.id %}"
+                            onclick="return confirm('Yakin hapus produk ini?')"
+                            class="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 text-xs">
+                            🗑️
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div x-show="openTambah" class="fixed inset-0 bg-black/50 flex items-center justify-center">
+        <div class="bg-white rounded-xl w-full max-w-xl shadow-xl">
+            <div class="flex items-center justify-between border-b px-6 py-4">
+                <h3 class="text-lg font-semibold text-gray-800">Tambah Produk</h3>
+                <button type="button" @click="openTambah=false" class="text-gray-400 hover:text-gray-600">✕</button>
+            </div>
+
+            <form method="post" action="{% url 'produk_tambah' %}" class="px-6 py-5">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                <div class="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded">
+                    {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ID Produk</label>
+                        {{ form.id_produk }}
+                        {% if form.id_produk.errors %}
+                        <div class="text-red-600 text-xs mt-1">{{ form.id_produk.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nama Produk</label>
+                        {{ form.nama_produk }}
+                        {% if form.nama_produk.errors %}
+                        <div class="text-red-600 text-xs mt-1">{{ form.nama_produk.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Harga</label>
+                        {{ form.harga }}
+                        {% if form.harga.errors %}
+                        <div class="text-red-600 text-xs mt-1">{{ form.harga.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
+                        {{ form.kategori }}
+                        {% if form.kategori.errors %}
+                        <div class="text-red-600 text-xs mt-1">{{ form.kategori.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                        {{ form.status }}
+                        {% if form.status.errors %}
+                        <div class="text-red-600 text-xs mt-1">{{ form.status.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 mt-6">
+                    <button type="button" @click="openTambah=false"
+                        class="px-4 py-2 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300">
+                        Batal
+                    </button>
+                    <button type="submit"
+                        class="px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700">
+                        Simpan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div x-show="openEdit" class="fixed inset-0 bg-black/50 flex items-center justify-center">
+        <div class="bg-white rounded-xl w-full max-w-xl shadow-xl">
+            <div class="flex items-center justify-between border-b px-6 py-4">
+                <h3 class="text-lg font-semibold text-gray-800">Edit Produk</h3>
+                <button type="button" @click="openEdit=false" class="text-gray-400 hover:text-gray-600">✕</button>
+            </div>
+
+            <form method="post" :action="`/produk/edit/${editData.id}/`" class="px-6 py-5">
+                {% csrf_token %}
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ID Produk</label>
+                        <input
+                            type="number"
+                            name="id_produk"
+                            x-model="editData.id_produk"
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nama Produk</label>
+                        <input
+                            type="text"
+                            name="nama_produk"
+                            x-model="editData.nama"
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Harga</label>
+                        <input
+                            type="number"
+                            name="harga"
+                            x-model="editData.harga"
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
+                        <select
+                            name="kategori"
+                            x-model="editData.kategori"
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required>
+                            {% for kategori in form.kategori.field.queryset %}
+                            <option value="{{ kategori.id }}">{{ kategori.nama_kategori }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                        <select
+                            name="status"
+                            x-model="editData.status"
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required>
+                            {% for status in form.status.field.queryset %}
+                            <option value="{{ status.id }}">{{ status.nama_status }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 mt-6">
+                    <button type="button" @click="openEdit=false"
+                        class="px-4 py-2 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300">
+                        Batal
+                    </button>
+                    <button type="submit"
+                        class="px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700">
+                        Update
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>
